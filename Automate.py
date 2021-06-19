@@ -1,6 +1,6 @@
-import copy #pour la copie
-
-
+from graphviz import Digraph
+import Automate
+import uuid # pour generer les valeurs au hasard
 class Automate():
     """ Cette classe représente un Automate FIni Déyterministe"""
     def __init__(self, alphabet):
@@ -62,7 +62,7 @@ class Automate():
     def add_state(self, state, final = False, init= False):
         if state in self.states:
             print("(ERREUR) : l'etat'" + state + "' existe deja.")
-            return
+            return False
         self.transitions[state] = []
         self.states.append(state)
         if final:
@@ -71,24 +71,60 @@ class Automate():
             if self.type=='AFD':
                 if len(self.init) != 0:
                     print("(ERREUR) : l'etat initial a séja été défini, l'AFD ne peut avoir plusieurs etats initiaux")
-                    return
+                    return False
             self.init.append(state) # pour definir une fois l'etat initial
-        return
+        return True
  
     def valid_symbol(self, symbol):
         """ verifier si un symbole appartient à un language"""
         if symbol not in self.alphabet: return False
         return True
 
-    def is_complet(self):
-        pass
+    def is_complete(self) :
+        for state in self.states:    
+            sym_for_state = []
+            for symbol in self.alphabet:
+                for (sym, dest) in self.transitions[state]:
+                    sym_for_state.append(sym)
+                if symbol  not in sym_for_state:
+                        return False
+        return True
 
-    def clone(self):
-        """ Returns a copy of the DFA."""
-        a = Automate(self.alphabet)
-        a.states = self.states.copy()
-        a.init = self.init
-        a.finals = self.finals
-        a.transitions = copy.deepcopy(self.transitions)
-        return a
-    
+    def complete(self) :
+        if self.is_complete():
+            return True
+        state_puit = "Puit"
+        self_clone = self.clone()
+        self_clone.add_state(state_puit)
+        for state in self_clone.states: 
+            sym_for_state = []
+            for symbol in self_clone.alphabet:
+                for (sym, dest) in self_clone.transitions[state]:
+                    sym_for_state.append(sym)
+                if symbol  not in sym_for_state:
+                    self_clone.add_transition(state, symbol, state_puit)
+                    self_clone.add_transition(state_puit, symbol, state_puit)
+            
+        return self_clone
+
+    def display(self):
+        visualisationAutomate=Digraph(format="pdf")
+
+        for etat  in self.states:
+            if etat in self.init:
+                visualisationAutomate.node(str(etat),label=str(etat),color='green')
+            if etat in self.finals:
+                visualisationAutomate.node(str(etat),label=str(etat),shape='doublecircle')
+            else:
+                visualisationAutomate.node(str(etat),label=str(etat))
+
+        for source in self.transitions:
+            for (sym, dest) in self.transitions[source]:
+                visualisationAutomate.edge(str(source),str(dest),label=sym)
+
+        visualisationAutomate.render(filename="Output/"+self.type+"/Automate '"+self.type+"'_Alphabet '"+self.alphabet+"'"+str(uuid.uuid1()), view=True)    
+
+    def has_state(self, state):
+        if state in self.states:
+            return True
+        return False

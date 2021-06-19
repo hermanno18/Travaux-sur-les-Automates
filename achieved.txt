@@ -1,0 +1,7 @@
+    7) afficher un automate
+1) creer un automate fini déterministe
+1) creer un automate fini non déterministe
+3) déterminister un AFD
+4) reconnaitre un mot 
+5) rendre un automate complet
+6) déterminer le complementaire d'un automate

@@ -1,0 +1,2 @@
+installer 'graphviz' pour l'affichage des graphes avec la commande "sudo apt install  graphviz"
+le caractere vide c'est "&"
